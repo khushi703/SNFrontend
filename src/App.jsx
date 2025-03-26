@@ -7,6 +7,7 @@ import SignupPage from "./pages/SignupPage"
 import HomePage from "./pages/HomePage"
 import ProtectedRoute from "./components/ProtectedRoute"
 import Footer from "./components/Footer"
+import OAuthCallback from "./components/OAuthCallback";
 
 export default function App() {
   return (
@@ -26,7 +27,9 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="*" element={<Navigate to="/" replace />} />
+               {/* 👇 Add this new route for OAuth callback */}
+              <Route path="/oauth-callback" element={<OAuthCallback />} />
+                        <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
           <Footer />

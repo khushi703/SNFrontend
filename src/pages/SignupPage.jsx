@@ -13,17 +13,25 @@ export default function SignupPage() {
   const navigate = useNavigate()
   const { setUser } = useAppContext()
 
-  const handleSignup = async (e) => {
-    e.preventDefault()
-    setError(null) // Clear previous errors
-
+  const signup = async (email, username, password) => {
     try {
-      await api.post("/users/register", { email, username, password })
-
-      // Redirect to login page after successful signup
-      navigate("/login")
-    } catch (err) {
-      setError(err.response?.data?.message || "Signup failed. Try again.") // Handle API errors
+      const res = await fetch("http://localhost:8080/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, username, password, role: "USER" }),
+      })
+  
+      if (res.ok) {
+        const data = await res.json()
+        setUser(data.user)
+        setToken(data.token) // Save token after signup
+      } else {
+        console.error("Signup failed")
+      }
+    } catch (error) {
+      console.error("Error during signup:", error)
     }
   }
 

@@ -20,7 +20,7 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username,
+          usernameOrEmail:username,
           password,
         }),
       })
@@ -44,6 +44,13 @@ export default function LoginPage() {
       setError(error.message)
     }
   }
+
+  // 🟢 Google OAuth2 Login
+  const handleGoogleLogin = () => {
+    // Store current location to redirect back after login
+    localStorage.setItem("preAuthPath", window.location.pathname);
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  };
 
   return (
     <div className="min-h-screen bg-dark-bg flex items-center justify-center p-4">
@@ -91,9 +98,10 @@ export default function LoginPage() {
           <div className="flex-grow border-t border-gray-700"></div>
         </div>
 
+        {/* Google Login Button */}
         <button
           className="auth-button flex items-center justify-center"
-          onClick={() => alert("Google login will be implemented later!")}
+          onClick={handleGoogleLogin}
         >
           <span>Log in with Google</span>
         </button>

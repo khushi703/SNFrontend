@@ -68,7 +68,7 @@ export function AppProvider({ children }) {
   const [currentFolder, setCurrentFolder] = useState(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [sidebarOpen, setSidebarOpen] = useState(false)
-
+  const [token, setToken] = useState(null)
   // Initialize with mock data
   useEffect(() => {
     // Check if user is stored in localStorage
@@ -267,6 +267,30 @@ export function AppProvider({ children }) {
       }),
     )
   }
+// Load token from localStorage on app start
+useEffect(() => {
+  const storedToken = localStorage.getItem("token")
+  if (storedToken) {
+    setToken(storedToken)
+  }
+}, [])
+
+// Save token to localStorage when it changes
+useEffect(() => {
+  if (token) {
+    localStorage.setItem("token", token)
+  } else {
+    localStorage.removeItem("token")
+  }
+}, [token])
+
+// Logout function to clear token and user
+const logout = () => {
+  setToken(null)
+  setUser(null)
+  localStorage.removeItem("token")
+  localStorage.removeItem("user")
+}
 
   return (
     <AppContext.Provider
