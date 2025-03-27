@@ -1,5 +1,7 @@
 "use client"
 
+import React from "react"
+
 import { useState, useRef, useEffect } from "react"
 import { useAppContext } from "../context/AppContext"
 import {
@@ -55,20 +57,42 @@ export default function NotesList() {
   const fileInputRef = useRef(null)
 
   useEffect(() => {
+    // Reset any state that should be cleared when changing folders
+    setNoteMenuOpen(null)
+    setEditingNoteId(null)
+
+    // Close any open modals when changing folders
+    setShowPasswordModal(false)
+    setShowCollaborationModal(false)
+    setShowVersionHistoryModal(false)
+  }, [currentFolder])
+
+  useEffect(() => {
+    // Reset any editing state when changing folders
+    setEditingNoteId(null)
+    setNoteMenuOpen(null)
+  }, [currentFolder])
+
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setNoteMenuOpen(null)
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside)
+    if (noteMenuOpen !== null) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [])
+  }, [noteMenuOpen])
 
   // Filter notes based on current folder
-  const filteredNotes = currentFolder === "all" ? notes : notes.filter((note) => note.folderId === currentFolder)
+  const filteredNotes = React.useMemo(() => {
+    return currentFolder === "all" ? notes : notes.filter((note) => note.folderId === currentFolder)
+  }, [notes, currentFolder])
 
   // Sort notes: searched notes first, then pinned, then by updated date
   const sortedNotes = [...filteredNotes].sort((a, b) => {
@@ -103,6 +127,7 @@ export default function NotesList() {
   })
 
   const toggleNoteMenu = (noteId, event) => {
+    event.preventDefault()
     event.stopPropagation()
     if (noteMenuOpen === noteId) {
       setNoteMenuOpen(null)
@@ -221,8 +246,8 @@ export default function NotesList() {
 
   return (
     // Added max-h-screen and overflow-y-auto to ensure scrolling works properly
-    <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-white dark:bg-gray-900 h-full max-h-[calc(100vh-64px)]">
-      <div className="flex justify-between items-center mb-6 sticky top-0 bg-white dark:bg-gray-900 z-10 py-2">
+    <div className="flex-1 p-4 md:p-6 overflow-y-auto bg-background dark:bg-gray-900 h-full max-h-[calc(100vh-64px)]">
+      <div className="flex justify-between items-center mb-6 sticky top-0 bg-background dark:bg-gray-900 z-10 py-2">
         <h1 className="text-xl md:text-2xl font-bold dark:text-white">
           {searchQuery
             ? `Search results for "${searchQuery}"`
@@ -246,7 +271,10 @@ export default function NotesList() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-6">
         {sortedNotes.length > 0 ? (
           sortedNotes.map((note) => (
-            <div key={note.id} className="note-card relative dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+            <div
+              key={note.id}
+              className="note-card relative dark:bg-gray-800 dark:border-gray-700 dark:text-white h-full"
+            >
               {note.isPinned && <Pin size={16} className="absolute top-2 right-2 text-primary dark:text-blue-400" />}
 
               {editingNoteId === note.id ? (
@@ -280,115 +308,119 @@ export default function NotesList() {
                   </div>
                 </div>
               ) : (
-                <div onClick={() => startEditingNote(note)} className="h-full">
+                <div onClick={() => startEditingNote(note)} className="h-full flex flex-col">
                   <h3 className="font-semibold text-lg mb-2">{note.title}</h3>
 
-                  {note.type === "text" && (
-                    <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{note.content}</p>
-                  )}
+                  <div className="flex-grow">
+                    {note.type === "text" && (
+                      <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">{note.content}</p>
+                    )}
 
-                  {note.type === "checklist" && note.checklistItems && (
-                    <div className="mb-4 space-y-1">
-                      {note.checklistItems.map((item) => (
-                        <div key={item.id} className="flex items-center group">
+                    {note.type === "checklist" && note.checklistItems && (
+                      <div className="mb-4 space-y-1">
+                        {note.checklistItems.map((item) => (
+                          <div key={item.id} className="flex items-center group">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                toggleChecklistItem(note.id, item.id)
+                              }}
+                              className="mr-2 flex-shrink-0"
+                            >
+                              {item.checked ? (
+                                <Check size={16} className="text-green-500" />
+                              ) : (
+                                <div className="w-4 h-4 border border-gray-400 dark:border-gray-500 rounded" />
+                              )}
+                            </button>
+                            <span
+                              className={`flex-1 ${
+                                item.checked
+                                  ? "line-through text-gray-400 dark:text-gray-500"
+                                  : "text-gray-700 dark:text-gray-300"
+                              }`}
+                            >
+                              {item.text}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                deleteChecklistItem(note.id, item.id)
+                              }}
+                              className="opacity-0 group-hover:opacity-100 text-red-500"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                        <div className="flex items-center mt-2">
+                          <input
+                            type="text"
+                            placeholder="Add item..."
+                            value={newChecklistItem}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => setNewChecklistItem(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault()
+                                handleAddChecklistItem(note.id)
+                              }
+                            }}
+                            className="flex-1 p-1 text-sm border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-blue-500 bg-transparent"
+                          />
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              toggleChecklistItem(note.id, item.id)
-                            }}
-                            className="mr-2 flex-shrink-0"
-                          >
-                            {item.checked ? (
-                              <Check size={16} className="text-green-500" />
-                            ) : (
-                              <div className="w-4 h-4 border border-gray-400 dark:border-gray-500 rounded" />
-                            )}
-                          </button>
-                          <span
-                            className={`flex-1 ${
-                              item.checked
-                                ? "line-through text-gray-400 dark:text-gray-500"
-                                : "text-gray-700 dark:text-gray-300"
-                            }`}
-                          >
-                            {item.text}
-                          </span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              deleteChecklistItem(note.id, item.id)
-                            }}
-                            className="opacity-0 group-hover:opacity-100 text-red-500"
-                          >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      ))}
-                      <div className="flex items-center mt-2">
-                        <input
-                          type="text"
-                          placeholder="Add item..."
-                          value={newChecklistItem}
-                          onClick={(e) => e.stopPropagation()}
-                          onChange={(e) => setNewChecklistItem(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault()
                               handleAddChecklistItem(note.id)
-                            }
-                          }}
-                          className="flex-1 p-1 text-sm border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-blue-500 bg-transparent"
-                        />
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleAddChecklistItem(note.id)
-                          }}
-                          className="ml-2 text-blue-500"
-                        >
-                          <Plus size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {note.type === "image" && (
-                    <div className="mb-4">
-                      {note.images && note.images.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-2">
-                          {note.images.map((image) => (
-                            <img
-                              key={image.id}
-                              src={image.url || "/placeholder.svg"}
-                              alt="Note image"
-                              className="rounded-md object-cover w-full h-24"
-                            />
-                          ))}
+                            }}
+                            className="ml-2 text-blue-500"
+                          >
+                            <Plus size={14} />
+                          </button>
                         </div>
-                      ) : (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setSelectedNote(note.id)
-                            handleImageUpload(note.id)
-                          }}
-                          className="w-full p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 flex flex-col items-center"
-                        >
-                          <Upload size={24} className="mb-2" />
-                          <span>Upload Image</span>
-                        </button>
-                      )}
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                      />
-                    </div>
-                  )}
+                      </div>
+                    )}
 
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Last updated: {formatDate(note.updatedAt)}</p>
+                    {note.type === "image" && (
+                      <div className="mb-4">
+                        {note.images && note.images.length > 0 ? (
+                          <div className="grid grid-cols-2 gap-2">
+                            {note.images.map((image) => (
+                              <img
+                                key={image.id}
+                                src={image.url || "/placeholder.svg"}
+                                alt="Note image"
+                                className="rounded-md object-cover w-full h-24"
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setSelectedNote(note.id)
+                              handleImageUpload(note.id)
+                            }}
+                            className="w-full p-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-gray-500 dark:text-gray-400 flex flex-col items-center"
+                          >
+                            <Upload size={24} className="mb-2" />
+                            <span>Upload Image</span>
+                          </button>
+                        )}
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-auto">
+                    Last updated: {formatDate(note.updatedAt)}
+                  </p>
                 </div>
               )}
 
@@ -403,7 +435,8 @@ export default function NotesList() {
                 {noteMenuOpen === note.id && (
                   <div
                     ref={menuRef}
-                    className="absolute right-0 bottom-6 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-20 border border-gray-200 dark:border-gray-700 max-h-[calc(100vh-200px)] overflow-y-auto"
+                    className="fixed right-4 bottom-10 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700"
+                    style={{ zIndex: 1010 }}
                   >
                     <button
                       className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
@@ -511,7 +544,7 @@ export default function NotesList() {
 
       {/* Password Modal */}
       {showPasswordModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[1100] p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold mb-4 dark:text-white">Set Password</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
@@ -544,7 +577,7 @@ export default function NotesList() {
 
       {/* Collaboration Modal */}
       {showCollaborationModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1100] p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold mb-4 dark:text-white">Add Collaborator</h3>
             <input
@@ -588,7 +621,7 @@ export default function NotesList() {
 
       {/* Version History Modal */}
       {showVersionHistoryModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1100] p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold mb-4 dark:text-white">Version History</h3>
             {selectedNote && (

@@ -9,7 +9,7 @@ import NotesList from "../components/NotesList"
 import { Menu } from "lucide-react"
 
 export default function HomePage() {
-  const { user, sidebarOpen, setSidebarOpen } = useAppContext()
+  const { user, sidebarOpen, setSidebarOpen, currentFolder, setCurrentFolder } = useAppContext()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -18,18 +18,25 @@ export default function HomePage() {
     }
   }, [user, navigate])
 
+  useEffect(() => {
+    // Ensure a folder is selected when the component mounts
+    if (user && !currentFolder) {
+      setCurrentFolder("all")
+    }
+  }, [user, currentFolder, setCurrentFolder])
+
   if (!user) {
     return null
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white dark:bg-gray-900 overflow-hidden">
+    <div className="flex flex-col h-screen bg-background dark:bg-gray-900 overflow-hidden">
       <Navbar />
       <div className="flex flex-1 overflow-hidden relative">
         {/* Mobile sidebar toggle button */}
         {!sidebarOpen && (
           <button
-            className="absolute top-2 left-2 z-20 p-2 rounded-md bg-white dark:bg-gray-800 shadow-md md:hidden"
+            className="fixed top-20 left-4 z-30 p-2 rounded-md bg-gray-100 dark:bg-gray-800 shadow-md md:hidden"
             onClick={() => setSidebarOpen(true)}
             aria-label="Open sidebar"
           >
@@ -41,12 +48,16 @@ export default function HomePage() {
 
         {/* Overlay for mobile when sidebar is open */}
         {sidebarOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
         )}
 
-        {/* Main content area with padding to accommodate the toggle button on mobile */}
-        <div className={`flex-1 ${!sidebarOpen ? "pl-12 md:pl-0" : ""} overflow-hidden`}>
-          <NotesList />
+        {/* Main content area */}
+        <div className="flex-1 overflow-hidden">
+          <NotesList key={currentFolder} />
         </div>
       </div>
     </div>
