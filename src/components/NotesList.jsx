@@ -419,112 +419,111 @@ export default function NotesList() {
                     )}
                   </div>
 
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-auto">
-                    Last updated: {formatDate(note.updatedAt)}
-                  </p>
-                </div>
-              )}
+                  <div className="flex justify-between items-center mt-auto">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Last updated: {formatDate(note.updatedAt)}
+                    </p>
 
-              <div className="relative">
-                <div className="absolute top-2 right-2">
-                  <button
-                    className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                    onClick={(e) => toggleNoteMenu(note.id, e)}
-                  >
-                    <MoreVertical size={16} className="dark:text-gray-300" />
-                  </button>
-                </div>
-
-                {noteMenuOpen === note.id && (
-                  <div
-                    ref={menuRef}
-                    className="absolute right-0 top-0 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 max-h-[200px] overflow-y-auto note-menu-scrollbar"
-                    style={{ zIndex: 40 }}
-                  >
+                    {/* Moved the menu button here and adjusted position */}
                     <button
-                      className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
-                      onClick={() => {
-                        pinNote(note.id)
-                        setNoteMenuOpen(null)
-                      }}
+                      className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+                      onClick={(e) => toggleNoteMenu(note.id, e)}
                     >
-                      <Pin size={14} className="mr-2" />
-                      {note.isPinned ? "Unpin Note" : "Pin Note"}
-                    </button>
-
-                    <button
-                      className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
-                      onClick={() => {
-                        duplicateNote(note.id)
-                        setNoteMenuOpen(null)
-                      }}
-                    >
-                      <Copy size={14} className="mr-2" />
-                      Make a Copy
-                    </button>
-
-                    <button
-                      className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
-                      onClick={() => {
-                        setShowVersionHistoryModal(true)
-                        setNoteMenuOpen(null)
-                      }}
-                    >
-                      <Clock size={14} className="mr-2" />
-                      Version History
-                    </button>
-
-                    <button
-                      className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
-                      onClick={() => {
-                        setShowPasswordModal(true)
-                        setNoteMenuOpen(null)
-                      }}
-                    >
-                      <Lock size={14} className="mr-2" />
-                      Make Note Private
-                    </button>
-
-                    <button
-                      className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
-                      onClick={() => {
-                        setShowCollaborationModal(true)
-                        setNoteMenuOpen(null)
-                      }}
-                    >
-                      <Users size={14} className="mr-2" />
-                      Collaboration
-                    </button>
-
-                    <button
-                      className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
-                      onClick={() => downloadNoteAsText(note)}
-                    >
-                      <Download size={14} className="mr-2" />
-                      Download as Text
-                    </button>
-
-                    <button
-                      className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
-                      onClick={() => downloadNoteAsJSON(note)}
-                    >
-                      <FileText size={14} className="mr-2" />
-                      Download as JSON
-                    </button>
-
-                    <button
-                      className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500"
-                      onClick={() => {
-                        deleteNote(note.id)
-                        setNoteMenuOpen(null)
-                      }}
-                    >
-                      <Trash2 size={14} className="mr-2" />
-                      Delete Note
+                      <MoreVertical size={16} className="dark:text-gray-300" />
                     </button>
                   </div>
-                )}
-              </div>
+
+                  {noteMenuOpen === note.id && (
+                    <div
+                      ref={menuRef}
+                      className="absolute right-2 top-10 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 max-h-[200px] overflow-y-auto note-menu-scrollbar"
+                      style={{ zIndex: 40 }}
+                    >
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                        onClick={() => {
+                          pinNote(note.id)
+                          setNoteMenuOpen(null)
+                        }}
+                      >
+                        <Pin size={14} className="mr-2" />
+                        {note.isPinned ? "Unpin Note" : "Pin Note"}
+                      </button>
+
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                        onClick={() => {
+                          duplicateNote(note.id)
+                          setNoteMenuOpen(null)
+                        }}
+                      >
+                        <Copy size={14} className="mr-2" />
+                        Make a Copy
+                      </button>
+
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                        onClick={() => {
+                          setShowVersionHistoryModal(true)
+                          setNoteMenuOpen(null)
+                        }}
+                      >
+                        <Clock size={14} className="mr-2" />
+                        Version History
+                      </button>
+
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                        onClick={() => {
+                          setShowPasswordModal(true)
+                          setNoteMenuOpen(null)
+                        }}
+                      >
+                        <Lock size={14} className="mr-2" />
+                        Make Note Private
+                      </button>
+
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                        onClick={() => {
+                          setShowCollaborationModal(true)
+                          setNoteMenuOpen(null)
+                        }}
+                      >
+                        <Users size={14} className="mr-2" />
+                        Collaboration
+                      </button>
+
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                        onClick={() => downloadNoteAsText(note)}
+                      >
+                        <Download size={14} className="mr-2" />
+                        Download as Text
+                      </button>
+
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"
+                        onClick={() => downloadNoteAsJSON(note)}
+                      >
+                        <FileText size={14} className="mr-2" />
+                        Download as JSON
+                      </button>
+
+                      <button
+                        className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 text-red-500"
+                        onClick={() => {
+                          deleteNote(note.id)
+                          setNoteMenuOpen(null)
+                        }}
+                      >
+                        <Trash2 size={14} className="mr-2" />
+                        Delete Note
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))
         ) : (

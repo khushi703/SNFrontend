@@ -65,7 +65,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+    <nav className="bg-background dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
       <div className="flex items-center justify-between">
         {/* Logo and mobile menu button */}
         <div className="flex items-center">
@@ -77,7 +77,7 @@ export default function Navbar() {
           </button>
           <Link to="/" className="flex items-center">
             <img
-              src="/Logo.png?height=24&width=24"
+              src="/placeholder.svg?height=24&width=24"
               alt="SafeNotes Logo"
               width={24}
               height={24}
@@ -135,12 +135,17 @@ export default function Navbar() {
         <div className="flex items-center space-x-4">
           <ThemeToggle />
 
+          {/* User profile section with username and email */}
           <div className="relative" ref={dropdownRef}>
             <button
               className="flex items-center focus:outline-none"
               onClick={() => setShowDropdown(!showDropdown)}
               aria-label="User menu"
             >
+              <div className="hidden md:flex flex-col items-end mr-2">
+                <span className="text-sm font-medium dark:text-white">{user?.username || "User"}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{user?.email || "user@example.com"}</span>
+              </div>
               <img
                 src={user?.profilePhoto || "/placeholder.svg?height=40&width=40"}
                 alt="Profile"
@@ -155,9 +160,9 @@ export default function Navbar() {
                 className="fixed right-4 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700"
                 style={{ zIndex: 1000 }}
               >
-                <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                  <p className="text-sm font-medium dark:text-white">{user?.username}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 md:hidden">
+                  <p className="text-sm font-medium dark:text-white">{user?.username || "User"}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || "user@example.com"}</p>
                 </div>
                 <button
                   className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
