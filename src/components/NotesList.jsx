@@ -129,6 +129,7 @@ export default function NotesList() {
   const toggleNoteMenu = (noteId, event) => {
     event.preventDefault()
     event.stopPropagation()
+
     if (noteMenuOpen === noteId) {
       setNoteMenuOpen(null)
     } else {
@@ -425,18 +426,20 @@ export default function NotesList() {
               )}
 
               <div className="relative">
-                <button
-                  className="absolute bottom-0 right-0 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-                  onClick={(e) => toggleNoteMenu(note.id, e)}
-                >
-                  <MoreVertical size={16} className="dark:text-gray-300" />
-                </button>
+                <div className="absolute top-2 right-2">
+                  <button
+                    className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+                    onClick={(e) => toggleNoteMenu(note.id, e)}
+                  >
+                    <MoreVertical size={16} className="dark:text-gray-300" />
+                  </button>
+                </div>
 
                 {noteMenuOpen === note.id && (
                   <div
                     ref={menuRef}
-                    className="fixed right-4 bottom-10 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700"
-                    style={{ zIndex: 1010 }}
+                    className="absolute right-0 top-0 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 max-h-[200px] overflow-y-auto note-menu-scrollbar"
+                    style={{ zIndex: 40 }}
                   >
                     <button
                       className="w-full text-left px-3 py-2 text-sm flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white"

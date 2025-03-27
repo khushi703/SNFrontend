@@ -109,6 +109,78 @@ body {
   }
 }
 
+/* Dark theme specific styles */
+.dark-theme {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+/* Ensure consistent dark theme across components */
+.dark .bg-white {
+  @apply bg-gray-900;
+}
+
+.dark .text-gray-600,
+.dark .text-gray-700 {
+  @apply text-gray-300;
+}
+
+.dark .border-gray-200 {
+  @apply border-gray-700;
+}
+
+/* Sidebar specific styles */
+/* Light mode sidebar */
+.sidebar {
+  @apply bg-gray-100 text-gray-800 border-gray-300;
+}
+
+/* Dark mode sidebar */
+.dark .sidebar {
+  @apply bg-gray-900 text-gray-100 border-gray-700;
+}
+
+/* Folder item styles */
+.folder-item {
+  @apply flex items-center p-2 rounded-md mb-1 cursor-pointer transition-colors;
+  touch-action: manipulation;
+}
+
+/* Light mode folder items */
+.folder-item {
+  @apply text-gray-700 hover:bg-gray-200;
+}
+
+/* Dark mode folder items */
+.dark .folder-item {
+  @apply text-gray-300 hover:bg-gray-800;
+}
+
+/* Active folder item */
+.folder-item.active {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.dark .folder-item.active {
+  @apply bg-blue-900 text-white;
+}
+
+/* Ensure note cards have proper dark theme */
+.dark .note-card {
+  @apply bg-gray-800 border-gray-700 text-white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Ensure modals have proper dark theme */
+.dark .bg-white {
+  @apply bg-gray-800;
+}
+
+/* Ensure consistent dark theme for the main content area */
+.dark .bg-background {
+  background-color: #121212;
+}
+
 /* Dropdown menu utilities */
 .dropdown-menu {
   position: fixed;
@@ -143,5 +215,122 @@ body {
 /* Ensure proper spacing in note content */
 .note-content {
   @apply flex-grow mb-2;
+}
+
+/* Add active state for touch devices */
+@media (hover: none) {
+  .folder-item:active {
+    @apply bg-gray-200 dark:bg-gray-800;
+  }
+}
+
+.folder-item:hover .folder-menu-button {
+  @apply opacity-100;
+}
+
+.folder-menu-button {
+  @apply opacity-0 transition-opacity;
+}
+
+/* Ensure folder menu buttons are easily tappable on mobile */
+.folder-menu-button {
+  @apply p-1 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700;
+  min-height: 32px;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .folder-menu-button {
+    @apply opacity-100;
+  }
+}
+
+/* Improve scrollbar styling for the folders list */
+.sidebar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.dark .sidebar-scrollbar {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+}
+
+.dark .sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ensure sidebar has proper z-index on mobile */
+@media (max-width: 768px) {
+  #sidebar {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+}
+
+
+Add
+  these
+  styles
+  at
+  the
+  end
+  of
+  the
+  file
+  to
+  improve
+  menu
+  scrolling /* Note menu scrollbar styling */
+  .note-menu-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.dark .note-menu-scrollbar {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.note-menu-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.note-menu-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.note-menu-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+}
+
+.dark .note-menu-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ensure note menu is properly positioned */
+.note-card {
+  position: relative;
+}
+
+.note-menu {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 20;
 }
 
