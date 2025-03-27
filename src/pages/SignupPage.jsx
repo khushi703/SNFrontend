@@ -1,9 +1,6 @@
-"use client"
-
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAppContext } from "../context/AppContext"
-import api from "../utils/api" // Import API utility
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
@@ -15,24 +12,42 @@ export default function SignupPage() {
 
   const signup = async (email, username, password) => {
     try {
-      const res = await fetch("http://localhost:8080/api/auth/register", {
+      const res = await fetch("http://localhost:8080/api/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, username, password, role: "USER" }),
+        body: JSON.stringify({ email, username, password }),
       })
   
-      if (res.ok) {
+      // ✅ Check if the response is JSON
+      const contentType = res.headers.get("content-type")
+      if (contentType && contentType.includes("application/json")) {
         const data = await res.json()
         setUser(data.user)
-        setToken(data.token) // Save token after signup
+        localStorage.setItem("token", data.token)
+        navigate("/login")
       } else {
-        console.error("Signup failed")
+        // If not JSON, handle plain text
+        const text = await res.text()
+        console.log("Response:", text)
+        if (res.ok) {
+          alert(text) // Show success message as alert
+          navigate("/login")
+        } else {
+          setError(text || "Signup failed. Please try again.")
+        }
       }
     } catch (error) {
       console.error("Error during signup:", error)
+      setError("An error occurred. Please try again later.")
     }
+  }
+  
+  // ✅ Correctly defined handleSignup before return
+  const handleSignup = async (e) => {
+    e.preventDefault() // Prevent page refresh
+    await signup(email, username, password) // Call signup
   }
 
   return (
@@ -49,6 +64,7 @@ export default function SignupPage() {
         </div>
         <h1 className="text-2xl font-bold text-center mb-6">Sign up</h1>
 
+        {/* ✅ Make sure onSubmit calls handleSignup correctly */}
         <form onSubmit={handleSignup}>
           <input
             type="email"
