@@ -1,4 +1,6 @@
 "use client"
+// At the top of your file, add this constant
+const API_BASE_URL = 'http://localhost:8080'; // Spring Boot default port
 
 import React from "react"
 
@@ -53,8 +55,76 @@ export default function NotesList() {
   const [editedNoteTitle, setEditedNoteTitle] = useState("")
   const [editedNoteContent, setEditedNoteContent] = useState("")
   const [showCreateNoteModal, setShowCreateNoteModal] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState(null)
+
   const menuRef = useRef(null)
   const fileInputRef = useRef(null)
+  useEffect(() => {
+    const fetchNotes = async () => {
+      setIsLoading(true)
+      setError(null)
+      
+      try {
+        const response = await fetch('http://localhost:8080/api/notes', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch notes');
+        }
+
+        const data = await response.json();
+        // Update your context with the fetched notes
+        // You'll need to modify your context to handle this
+        // For example: setFetchedNotes(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNotes();
+  }, [currentFolder]);
+
+  const handleCreateNote = async (noteData) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('http://localhost:8080/api/notes/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          title: noteData.title,
+          content: noteData.content,
+          type: noteData.checklistItems && noteData.checklistItems.length > 0 ? "checklist" : "text",
+          checklistItems: noteData.checklistItems || [],
+          folderId: currentFolder === "all" ? null : currentFolder
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create note');
+      }
+
+      const createdNote = await response.json();
+      addNote(createdNote); // Add the new note to your context
+      setShowCreateNoteModal(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Reset any state that should be cleared when changing folders
@@ -230,20 +300,20 @@ export default function NotesList() {
     setNoteMenuOpen(null)
   }
 
-  const handleCreateNote = (noteData) => {
-    const { title, content, checklistItems, image } = noteData
+  // const handleCreateNote = (noteData) => {
+  //   const { title, content, checklistItems, image } = noteData
 
-    const newNote = {
-      title,
-      content,
-      type: checklistItems && checklistItems.length > 0 ? "checklist" : "text",
-      checklistItems: checklistItems || [],
-      images: image ? [{ id: Date.now().toString(), url: image }] : [],
-    }
+  //   const newNote = {
+  //     title,
+  //     content,
+  //     type: checklistItems && checklistItems.length > 0 ? "checklist" : "text",
+  //     checklistItems: checklistItems || [],
+  //     images: image ? [{ id: Date.now().toString(), url: image }] : [],
+  //   }
 
-    addNote(newNote)
-    setShowCreateNoteModal(false)
-  }
+  //   addNote(newNote)
+  //   setShowCreateNoteModal(false)
+  // }
 
   return (
     // Added max-h-screen and overflow-y-auto to ensure scrolling works properly

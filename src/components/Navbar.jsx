@@ -77,7 +77,7 @@ export default function Navbar() {
           </button>
           <Link to="/" className="flex items-center">
             <img
-              src="/placeholder.svg?height=24&width=24"
+              src="/Logo.png?height=24&width=24"
               alt="SafeNotes Logo"
               width={24}
               height={24}
